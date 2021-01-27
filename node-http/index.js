@@ -15,16 +15,11 @@ const server = http.createServer((req, res) => {
         if (req.url === '/') fileUrl = '/index.html';
         else fileUrl = req.url;
 
+        var filePath = path.resolve('./public' + fileUrl);
 
-
-        var filePath = path.resolve('./' + fileUrl);
-
-
-        console.log("1111" + fileUrl);
         const fileExt = path.extname(filePath);
         if (fileExt === '.html') {
-            console.log("2222 " + filePath);
-            fs.exists(filePath, (exists) => {
+           fs.exists(filePath, (exists) => {
                 if (!exists) {
                     res.statusCode = 404;
                     res.setHeader('Content-Type', 'text/html');
