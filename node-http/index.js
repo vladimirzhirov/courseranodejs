@@ -18,7 +18,7 @@ const server = http.createServer((req, res) => {
 
 
         var filePath = path.resolve('./' + fileUrl);
-        
+
 
         console.log("1111" + fileUrl);
         const fileExt = path.extname(filePath);
