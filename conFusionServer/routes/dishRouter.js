@@ -8,16 +8,47 @@ const dishRouter = express.Router();
 
 dishRouter.use(bodyParser.json());
 
+
+var authenticate = require('../authenticate');
+
 dishRouter.route('/')
-.get((req,res,next) => {
-    Dishes.find({})
-    .then((dishes) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(dishes);
-    }, (err) => next(err))
-    .catch((err) => next(err));
+
+
+.post(authenticate.verifyUser, (req, res, next) => {
+
+
 })
+
+.put(authenticate.verifyUser, (req, res, next) => {
+
+
+
+})
+
+.delete(authenticate.verifyUser, (req, res, next) => {
+
+
+
+});
+
+dishRouter.route('/:dishId')
+
+
+.post(authenticate.verifyUser, (req, res, next) => {
+
+})
+
+.put(authenticate.verifyUser, (req, res, next) => {
+
+})
+
+.delete(authenticate.verifyUser, (req, res, next) => {
+
+});
+
+
+dishRouter.route('/:dishId/comments');
+
 .post((req, res, next) => {
     Dishes.create(req.body)
     .then((dish) => {
