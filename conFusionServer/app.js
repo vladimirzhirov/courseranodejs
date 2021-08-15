@@ -11,19 +11,23 @@ var dishRouter = require('./routes/dishRouter');
 var promoRouter = require('./routes/promoRouter');
 var leaderRouter = require('./routes/leaderRouter');
 
+
+var session = require('express-session');
+var FileStore = require('session-file-store')(session);
+
 var app = express();
-
-const mongoose = require('mongoose');
-
-const Dishes = require('./models/dishes');
-
-//const url = 'mongodb://localhost:27017/conFusion';
-const connect = mongoose.connect(url);
-
 var config = require('./config');
 
-const url = config.mongoUrl;
+var passport = require('passport');
+var authenticate = require('./authenticate');
 
+
+
+const url = config.mongoUrl;
+const mongoose = require('mongoose');
+const Dishes = require('./models/dishes');
+
+const connect = mongoose.connect(url);
 
 connect.then((db) => {
     console.log("Connected correctly to server");
@@ -38,31 +42,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-var session = require('express-session');
-var FileStore = require('session-file-store')(session);
-
-var passport = require('passport');
-var authenticate = require('./authenticate');
-
-
-
-//app.use(cookieParser('12345-67890-09876-54321'));
-app.use(session({
-  name: 'session-id',
-  secret: '12345-67890-09876-54321',
-  saveUninitialized: false,
-  resave: false,
-  store: new FileStore()
-}));
+app.use(passport.initialize());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -78,6 +61,8 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+console.log("!!!!!!!!!!!!!!!!!");
+ console.log(err);
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -86,5 +71,8 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 module.exports = app;

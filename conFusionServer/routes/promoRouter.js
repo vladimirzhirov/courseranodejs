@@ -6,81 +6,79 @@ const promoRouter = express.Router();
 
 promoRouter.use(bodyParser.json());
 
-const Promotions = require('../models/promotions');
+const Promos = require('../models/promotions');
 
 var authenticate = require('../authenticate');
 
+// promos
 promoRouter.route('/')
-
-
-.post(authenticate.verifyUser, (req, res, next) => {
-
-
+.get(authenticate.verifyUser, (req, res, next) => {
+    Promos.find({})
+    .then((promotions) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(promotions);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 })
-
+.post(authenticate.verifyAdmin, (req, res, next) => {
+    Promos.create(req.body)
+    .then((promo) => {
+        console.log('Promo Created ', promo);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish);
+    }, (err) => next(err))
+    .catch((err) => next(err));
+})
 .put(authenticate.verifyUser, (req, res, next) => {
-
-
-
+    res.statusCode = 403;
+    res.end('PUT operation not supported on /promos');
 })
-
-.delete(authenticate.verifyUser, (req, res, next) => {
-
-
-
+.delete(authenticate.verifyAdmin, (req, res, next) => {
+      Promos.remove({})
+          .then((resp) => {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json(resp);
+      }, (err) => next(err))
+      .catch((err) => next(err));
 });
 
+// promo
 promoRouter.route('/:promoId')
-
-
+.get(authenticate.verifyUser, (req, res, next) => {
+    Promos.findById(req.params.promoId)
+    .then((promo) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish);
+    }, (err) => next(err))
+    .catch((err) => next(err));
+})
 .post(authenticate.verifyUser, (req, res, next) => {
-
+    res.statusCode = 403;
+    res.end('POST operation not supported on /promos/' + req.params.promoId);
 })
-
-.put(authenticate.verifyUser, (req, res, next) => {
-
+.put(authenticate.verifyAdmin, (req, res, next) => {
+    Promos.findByIdAndUpdate(req.params.promoId, {
+        $set: req.body
+    }, { new: true })
+    .then((promo) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 })
-
-.delete(authenticate.verifyUser, (req, res, next) => {
-
+.delete(authenticate.verifyAdmin, (req, res, next) => {
+    Promos.findByIdAndRemove(req.params.promoId)
+    .then((resp) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(resp);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 });
-
-
-
-promoRouter.route('/:promoId')
-    .get(function (req, res, next) {
-        Promotions.findById(req.params.promoId)
-            .then((promo) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(promo);
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    })
-    .put((req, res, next) => {
-         Promotions.findByIdAndUpdate(req.params.promoId, {
-                $set: req.body
-            }, { new: true })
-            .then((promo) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(promo);
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    })
-    .post((req, res) => {
-        res.statusCode = 403;
-        res.end('POST operation not supported on /promotions/' + req.params.promoId);
-    })
-    .delete((req, res, next) => {
-        Promotions.findByIdAndRemove(req.params.promoId)
-            .then((resp) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(resp);
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    });
-
 
 module.exports = promoRouter;
