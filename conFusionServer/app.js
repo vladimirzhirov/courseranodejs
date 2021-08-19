@@ -11,6 +11,8 @@ var dishRouter = require('./routes/dishRouter');
 var promoRouter = require('./routes/promoRouter');
 var leaderRouter = require('./routes/leaderRouter');
 
+var favoriteRouter = require('./routes/favoriteRouter');
+
 
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
@@ -20,6 +22,8 @@ var config = require('./config');
 
 var passport = require('passport');
 var authenticate = require('./authenticate');
+
+const uploadRouter = require('./routes/uploadRouter');
 
 
 
@@ -41,6 +45,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use('/imageUpload',uploadRouter);
 
 app.use(passport.initialize());
 
@@ -54,6 +59,8 @@ app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
 
+app.use('/favorites', favoriteRouter);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -61,7 +68,6 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-console.log("!!!!!!!!!!!!!!!!!");
  console.log(err);
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -72,6 +78,15 @@ console.log("!!!!!!!!!!!!!!!!!");
   res.render('error');
 });
 
+// Secure traffic only
+app.all('*', (req, res, next) => {
+  if (req.secure) {
+    return next();
+  }
+  else {
+    res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url);
+  }
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 
